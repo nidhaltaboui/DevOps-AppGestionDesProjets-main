@@ -1,0 +1,56 @@
+pipeline {
+    agent any
+
+    tools {
+        jdk 'JAVA_HOME'
+        maven 'M2_HOME'
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                echo 'Récupération du code source...'
+                checkout scm
+            }
+        }
+
+        stage('Build') {
+            steps {
+                echo 'Compilation du projet backend...'
+                sh 'mvn clean compile'
+            }
+        }
+
+        stage('Test') {
+            steps {
+                echo 'Exécution des tests unitaires...'
+                sh 'mvn test'
+            }
+        }
+
+        stage('Package') {
+            steps {
+                echo 'Génération du livrable (.jar)...'
+                sh 'mvn package -DskipTests'
+            }
+        }
+
+        stage('Archive') {
+            steps {
+                archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
+            }
+        }
+    }
+
+    post {
+        success {
+            echo '✅ Pipeline exécuté avec succès !'
+        }
+        failure {
+            echo '❌ Le pipeline a échoué. Consultez la Console Output.'
+        }
+        always {
+            junit allowEmptyResults: true, testResults: 'target/surefire-reports/*.xml'
+        }
+    }
+}
