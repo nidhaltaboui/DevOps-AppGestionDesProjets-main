@@ -17,27 +17,33 @@ pipeline {
         stage('Build') {
             steps {
                 echo 'Compilation du projet backend...'
-                sh 'mvn clean compile'
+                dir('backend') {
+                    sh 'mvn clean compile'
+                }
             }
         }
 
         stage('Test') {
             steps {
                 echo 'Exécution des tests unitaires...'
-                sh 'mvn test'
+                dir('backend') {
+                    sh 'mvn test'
+                }
             }
         }
 
         stage('Package') {
             steps {
                 echo 'Génération du livrable (.jar)...'
-                sh 'mvn package -DskipTests'
+                dir('backend') {
+                    sh 'mvn package -DskipTests'
+                }
             }
         }
 
         stage('Archive') {
             steps {
-                archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
+                archiveArtifacts artifacts: 'backend/target/*.jar', fingerprint: true
             }
         }
     }
@@ -50,7 +56,7 @@ pipeline {
             echo '❌ Le pipeline a échoué. Consultez la Console Output.'
         }
         always {
-            junit allowEmptyResults: true, testResults: 'target/surefire-reports/*.xml'
+            junit allowEmptyResults: true, testResults: 'backend/target/surefire-reports/*.xml'
         }
     }
 }
