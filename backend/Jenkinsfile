@@ -75,26 +75,23 @@ pipeline {
             }
         }
 
-        stage('Deploy MySQL') {
+                stage('Deploy MySQL') {
             steps {
                 echo 'Démarrage du conteneur MySQL...'
                 sh '''
-                    if [ "$(docker ps -aq -f name=^mysql$)" ]; then
-                        echo "Conteneur mysql existant, on le laisse tourner."
-                    else
-                        docker run -d \
-                            --name mysql \
-                            --network backend-net \
-                            -e MYSQL_ROOT_PASSWORD=root \
-                            -e MYSQL_DATABASE=test_db \
-                            -e MYSQL_USER=devops \
-                            -e MYSQL_PASSWORD=devops123 \
-                            -p 3307:3306 \
-                            -v mysql-data:/var/lib/mysql \
-                            mysql:8.0
-                        echo "Attente du démarrage de MySQL..."
-                        sleep 20
-                    fi
+                    docker rm -f mysql || true
+                    docker run -d \
+                        --name mysql \
+                        --network backend-net \
+                        -e MYSQL_ROOT_PASSWORD=root \
+                        -e MYSQL_DATABASE=test_db \
+                        -e MYSQL_USER=devops \
+                        -e MYSQL_PASSWORD=devops123 \
+                        -p 3307:3306 \
+                        -v mysql-data:/var/lib/mysql \
+                        mysql:8.0
+                    echo "Attente du démarrage de MySQL..."
+                    sleep 20
                 '''
             }
         }
