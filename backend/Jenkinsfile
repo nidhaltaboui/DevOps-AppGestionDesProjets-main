@@ -46,6 +46,14 @@ pipeline {
                 archiveArtifacts artifacts: 'backend/target/*.jar', fingerprint: true
             }
         }
+        stage('Docker Build') {
+            steps {
+                echo 'Construction de l\'image Docker backend-app...'
+                dir('backend') {
+                    sh 'docker build -t backend-app:latest .'
+                }
+            }
+        }
     }
 
     post {
